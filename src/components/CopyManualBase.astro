@@ -1,0 +1,173 @@
+---
+
+---
+
+<section>
+  <h1>CPG</h1>
+  <p>Copia,pega,genera y pega en el Excel✅</p>
+  <textarea id="editor" name="editor" rows="10"> </textarea>
+  <button id="btnCMB">Generar</button>
+</section>
+<style>
+  section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    color: white;
+  }
+
+  #editor {
+    min-width: 300px;
+    border: 1px solid #0056b3;
+    border-radius: 10px;
+    padding: 10px 8px;
+  }
+
+  #btnCMB {
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 10px 20px;
+    background-color: #007bff;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  #btnCMB:hover {
+    background-color: #0056b3;
+  }
+</style>
+<script>
+  import clipboardy from "clipboardy";
+  import moment from "moment";
+  import Swal from "sweetalert2";
+
+  interface IncidentData {
+    incidenceNo?: string; // Renamed from "Incidence No."
+    lineID?: string; // Renamed from "Line ID"
+    caseType?: string; // Renamed from "Case Type"
+    caseName?: string; // Renamed from "Case Name"
+    subject?: string; // Renamed from "Subject"
+    reason?: string; // Renamed from "Reason"
+    subReason?: string; // Renamed from "SubReason"
+    diagnosis?: string; // Renamed from "Diagnosis"
+    solution?: string; // Renamed from "Solution"
+    creationDate?: string; // Renamed from "Creation Date"
+    dateTimeOfSolution?: string; // Renamed from "Date / Time of Solution"
+    closingDateTime?: string; // Renamed from "Closing Date / Time"
+    timeElapsed?: string; // Renamed from "Time Elapsed"
+    customer?: string; // Renamed from "Customer"
+    description?: string; // Renamed from "Description"
+    // id: any;
+    // key: any;
+  }
+
+  const btnCMB = document.getElementById("btnCMB") as HTMLButtonElement;
+  const editor = document.getElementById("editor") as HTMLTextAreaElement;
+  // const [text, setText] = useState("");
+  function transformToPasteExcel(text: string) {
+    const charInitLine = "P";
+    const noLine = "Sin Line ID";
+    const lines = text.trim().split("\n");
+    const searchLine = lines.find((line) => line.includes("PER"));
+
+    if (lines.length < 31) {
+      searchLine ? lines.splice(3, 0, searchLine) : lines.splice(3, 0, noLine);
+    }
+
+    if (lines[3].charAt(0) !== charInitLine) {
+      lines.splice(3, 1);
+      searchLine ? lines.splice(3, 0, searchLine) : lines.splice(3, 0, noLine);
+    }
+
+    lines.splice(20, 1); // Eliminar las líneas que contienen "Expected Resolution Date"
+
+    // Convertir las líneas en pares de arrays de 2 en 2
+    // const result = [];
+    // for (let i = 0; i < lines.length; i += 2) {
+    //   result.push([lines[i], lines[i + 1]]);
+    // }
+
+    const incidentNetworkObject: IncidentData = {};
+
+    for (let i = 0; i < lines.length; i += 2) {
+      const key = lines[i].replace(/ /g, "").replace("/", "").replace(".", "");
+      const camelCaseKey = key.charAt(0).toLowerCase() + key.slice(1);
+      const value = lines[i + 1];
+      incidentNetworkObject[camelCaseKey as keyof IncidentData] = value;
+    }
+
+    const {
+      incidenceNo,
+      lineID,
+      creationDate,
+      closingDateTime,
+      diagnosis,
+      solution,
+      // timeElapsed,
+    } = incidentNetworkObject;
+
+    const creationDateFormat = moment(
+      creationDate,
+      "DD/MM/YYYY hh:mm A"
+    ).format("DD/MM/YYYY HH:mm");
+    const closingDateFormat = moment(
+      closingDateTime,
+      "DD/MM/YYYY hh:mm A"
+    ).format("DD/MM/YYYY HH:mm");
+
+    const data = [];
+    data.push(
+      incidenceNo,
+      lineID,
+      creationDateFormat,
+      creationDateFormat,
+      closingDateFormat,
+      closingDateFormat,
+      "Closed",
+      diagnosis,
+      solution
+    );
+    // const creationDate = moment(result[9][1], "DD/MM/YYYY hh:mm A").format(
+    //   "DD/MM/YYYY HH:mm"
+    // );
+    // const closingDate = moment(result[11][1], "DD/MM/YYYY hh:mm A").format(
+    //   "DD/MM/YYYY HH:mm"
+    // );
+
+    // const data = [];
+    // data.push(
+    //   result[1][1],
+    //   creationDate,
+    //   creationDate,
+    //   closingDate,
+    //   closingDate,
+    //   "Closed",
+    //   result[7][1],
+    //   result[8][1]
+    // );
+
+    const dataString = data.join("\t");
+    console.log(data);
+    return dataString;
+  }
+
+  function generateExcelRow() {
+    const excelRow = transformToPasteExcel(editor.value);
+    clipboardy.write(excelRow);
+    editor.value = "";
+    Swal.fire({
+      position: "top",
+      icon: "success",
+      title: "Fila copiada al portapapeles!",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+  }
+
+  btnCMB!.onclick = generateExcelRow;
+</script>

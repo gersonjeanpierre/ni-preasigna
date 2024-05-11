@@ -86,12 +86,6 @@
 
     lines.splice(20, 1); // Eliminar las líneas que contienen "Expected Resolution Date"
 
-    // Convertir las líneas en pares de arrays de 2 en 2
-    // const result = [];
-    // for (let i = 0; i < lines.length; i += 2) {
-    //   result.push([lines[i], lines[i + 1]]);
-    // }
-
     const incidentNetworkObject: IncidentData = {};
 
     for (let i = 0; i < lines.length; i += 2) {
@@ -108,7 +102,7 @@
       closingDateTime,
       diagnosis,
       solution,
-      // timeElapsed,
+      timeElapsed,
     } = incidentNetworkObject;
 
     const creationDateFormat = moment(
@@ -122,7 +116,6 @@
 
     const data = [];
     data.push(
-      incidenceNo,
       lineID,
       creationDateFormat,
       creationDateFormat,
@@ -132,27 +125,9 @@
       diagnosis,
       solution
     );
-    // const creationDate = moment(result[9][1], "DD/MM/YYYY hh:mm A").format(
-    //   "DD/MM/YYYY HH:mm"
-    // );
-    // const closingDate = moment(result[11][1], "DD/MM/YYYY hh:mm A").format(
-    //   "DD/MM/YYYY HH:mm"
-    // );
-
-    // const data = [];
-    // data.push(
-    //   result[1][1],
-    //   creationDate,
-    //   creationDate,
-    //   closingDate,
-    //   closingDate,
-    //   "Closed",
-    //   result[7][1],
-    //   result[8][1]
-    // );
 
     const dataString = data.join("\t");
-    console.log(data);
+
     return dataString;
   }
 

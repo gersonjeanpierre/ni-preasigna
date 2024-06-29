@@ -73,7 +73,7 @@
     const charInitLine = "P";
     const noLine = "Sin Line ID";
     const lines = text.trim().split("\n");
-    const searchLine = lines.find((line) => line.includes("PER"));
+    const searchLine = lines.find((line) => line.includes("PER.TDP."));
 
     if (lines.length < 31) {
       searchLine ? lines.splice(3, 0, searchLine) : lines.splice(3, 0, noLine);

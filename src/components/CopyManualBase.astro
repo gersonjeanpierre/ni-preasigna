@@ -3,10 +3,10 @@
 ---
 
 <section>
-  <h1>CPG</h1>
-  <p>Copia,pega,genera y pega en el Excel✅</p>
+  <h1>CANCELADO</h1>
+  <p>NO RENOVARON CONTRATO✅</p>
   <textarea id="editor" name="editor" rows="10"> </textarea>
-  <button id="btnCMB">Generar</button>
+  <button>Good Bye</button>
 </section>
 <style>
   section {
@@ -41,108 +41,3 @@
     background-color: #0056b3;
   }
 </style>
-<script>
-  import clipboardy from "clipboardy";
-  import moment from "moment";
-  import Swal from "sweetalert2";
-
-  interface IncidentData {
-    incidenceNo?: string; // Renamed from "Incidence No."
-    lineID?: string; // Renamed from "Line ID"
-    caseType?: string; // Renamed from "Case Type"
-    caseName?: string; // Renamed from "Case Name"
-    subject?: string; // Renamed from "Subject"
-    reason?: string; // Renamed from "Reason"
-    subReason?: string; // Renamed from "SubReason"
-    diagnosis?: string; // Renamed from "Diagnosis"
-    solution?: string; // Renamed from "Solution"
-    creationDate?: string; // Renamed from "Creation Date"
-    dateTimeOfSolution?: string; // Renamed from "Date / Time of Solution"
-    closingDateTime?: string; // Renamed from "Closing Date / Time"
-    timeElapsed?: string; // Renamed from "Time Elapsed"
-    customer?: string; // Renamed from "Customer"
-    description?: string; // Renamed from "Description"
-    // id: any;
-    // key: any;
-  }
-
-  const btnCMB = document.getElementById("btnCMB") as HTMLButtonElement;
-  const editor = document.getElementById("editor") as HTMLTextAreaElement;
-  // const [text, setText] = useState("");
-  function transformToPasteExcel(text: string) {
-    const charInitLine = "P";
-    const noLine = "Sin Line ID";
-    const lines = text.trim().split("\n");
-    const searchLine = lines.find((line) => line.includes("PER.TDP."));
-
-    if (lines.length < 31) {
-      searchLine ? lines.splice(3, 0, searchLine) : lines.splice(3, 0, noLine);
-    }
-
-    if (lines[3].charAt(0) !== charInitLine) {
-      lines.splice(3, 1);
-      searchLine ? lines.splice(3, 0, searchLine) : lines.splice(3, 0, noLine);
-    }
-
-    lines.splice(20, 1); // Eliminar las líneas que contienen "Expected Resolution Date"
-
-    const incidentNetworkObject: IncidentData = {};
-
-    for (let i = 0; i < lines.length; i += 2) {
-      const key = lines[i].replace(/ /g, "").replace("/", "").replace(".", "");
-      const camelCaseKey = key.charAt(0).toLowerCase() + key.slice(1);
-      const value = lines[i + 1];
-      incidentNetworkObject[camelCaseKey as keyof IncidentData] = value;
-    }
-
-    const {
-      incidenceNo,
-      lineID,
-      creationDate,
-      closingDateTime,
-      diagnosis,
-      solution,
-      timeElapsed,
-    } = incidentNetworkObject;
-
-    const creationDateFormat = moment(
-      creationDate,
-      "DD/MM/YYYY hh:mm A"
-    ).format("DD/MM/YYYY HH:mm");
-    const closingDateFormat = moment(
-      closingDateTime,
-      "DD/MM/YYYY hh:mm A"
-    ).format("DD/MM/YYYY HH:mm");
-
-    const data = [];
-    data.push(
-      lineID,
-      creationDateFormat,
-      creationDateFormat,
-      closingDateFormat,
-      closingDateFormat,
-      "Closed",
-      diagnosis,
-      solution
-    );
-
-    const dataString = data.join("\t");
-
-    return dataString;
-  }
-
-  function generateExcelRow() {
-    const excelRow = transformToPasteExcel(editor.value);
-    clipboardy.write(excelRow);
-    editor.value = "";
-    Swal.fire({
-      position: "top",
-      icon: "success",
-      title: "Fila copiada al portapapeles!",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  }
-
-  btnCMB!.onclick = generateExcelRow;
-</script>
